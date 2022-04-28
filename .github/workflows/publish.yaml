@@ -55,7 +55,7 @@ jobs:
 
       - name: Test
         run: |
-          docker run --rm ${{ env.TEST_TAG }} /usr/bin/convert --version
+          docker run --rm ${{ env.TEST_TAG }} /usr/bin/convert --version | grep heic
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
