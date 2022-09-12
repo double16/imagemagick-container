@@ -1,9 +1,9 @@
 FROM ubuntu:22.04 as build
 
-ARG IMAGEMAGICK_VERSION=7.1.0-36
+ARG IMAGEMAGICK_VERSION=7.1.0-47
 ENV DEBIAN_FRONTEND=noninteractive
 
-ADD https://download.imagemagick.org/ImageMagick/download/releases/ImageMagick-${IMAGEMAGICK_VERSION}.tar.xz /opt/
+ADD https://github.com/ImageMagick/ImageMagick/archive/refs/tags/${IMAGEMAGICK_VERSION}.tar.gz /opt/
 
 RUN mkdir /tmp/root
 
@@ -16,9 +16,9 @@ RUN apt-get -q update &&\
   apt-get build-dep imagemagick -y &&\
   apt-get install -qy libheif-dev libde265-dev
 RUN cd /opt &&\
-  tar x --xz -f ImageMagick-*.tar.xz &&\
+  tar x --gzip -f ${IMAGEMAGICK_VERSION}.tar.gz &&\
   cd $(find -type d -name "ImageMagick*" | head -n 1) &&\
-  ./configure --prefix=/tmp/root --with-heic=yes &&\
+  ./configure --prefix=/tmp/root --with-heic=yes | grep -q "HEIC.*yes.*yes" &&\
   make -j 2 &&\
   make install-strip
 
