@@ -1,6 +1,6 @@
 FROM ubuntu:22.04 as build
 
-ARG IMAGEMAGICK_VERSION=7.1.0-47
+ARG IMAGEMAGICK_VERSION=7.1.1-5
 ENV DEBIAN_FRONTEND=noninteractive
 
 ADD https://github.com/ImageMagick/ImageMagick/archive/refs/tags/${IMAGEMAGICK_VERSION}.tar.gz /opt/
@@ -11,14 +11,14 @@ RUN apt-get -q update &&\
   apt-get install -qy software-properties-common apt-transport-https ca-certificates gnupg-agent &&\
   sed -i 's/# deb-src/deb-src/' /etc/apt/sources.list &&\
   cat /etc/apt/sources.list &&\
-  add-apt-repository ppa:strukturag/libheif -y &&\
-  add-apt-repository ppa:strukturag/libde265 -y &&\
+  apt-get update &&\
   apt-get build-dep imagemagick -y &&\
   apt-get install -qy libheif-dev libde265-dev
 RUN cd /opt &&\
-  tar x --gzip -f ${IMAGEMAGICK_VERSION}.tar.gz &&\
-  cd $(find -type d -name "ImageMagick*" | head -n 1) &&\
-  ./configure --prefix=/tmp/root --with-heic=yes | grep -q "HEIC.*yes.*yes" &&\
+  tar x --gzip -f ${IMAGEMAGICK_VERSION}.tar.gz
+RUN cd $(find /opt -type d -name "ImageMagick*" | head -n 1) &&\
+  ./configure --prefix=/tmp/root --with-heic=yes | tee /tmp/configure.log &&\
+  grep -q "HEIC.*yes.*yes" /tmp/configure.log &&\
   make -j 2 &&\
   make install-strip
 
